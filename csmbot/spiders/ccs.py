@@ -42,9 +42,12 @@ class CCSSpider(BaseSpider):
 
         park["url"] = response.url
         park["name"] = sel.xpath("//h2[@class='contentTitle']/text()").extract()[0]
-	park["address"] = ""
+
+	addr = content.xpath("p[1]")
+	park["address"] = addr.xpath("text()").re(r"(.+)\s")[0]
+        park["gmap"] = addr.xpath("a/@href").extract()[0]
+	
 	park["description"] = ""
-	park["gmap"] = ""
 	park["features"] = []
 
 	return park
