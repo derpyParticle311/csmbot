@@ -22,7 +22,7 @@ class CCSSpider(BaseSpider):
 	parks = sel.xpath("//a[@title='Parks']/following-sibling::*//a[contains(@title,'Park') and not(contains(@title,'Parks'))]")
 
 	for park in [p.xpath("@href").extract()[0] for p in parks]:
-            yield Request(urlparse.urljoin("http://www.smgov.net", park), callback=parse_park)
+            yield Request(urlparse.urljoin("http://www.smgov.net", park), callback=self.parse_park)
 
     def parse_park(self, response):
         """
