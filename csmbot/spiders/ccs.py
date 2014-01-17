@@ -4,6 +4,8 @@ from scrapy.spider import BaseSpider
 from scrapy.selector import Selector
 from scrapy.http import Request
 
+from csmbot.items import Park
+
 class CCSSpider(BaseSpider):
     name = "ccs"
     allowed_domains = ["smgov.net"]
@@ -34,4 +36,15 @@ class CCSSpider(BaseSpider):
         @returns requests 0 0
         @scrapes url name description address gmap features
         """
-        pass
+        sel = Selector(response)
+        content = sel.xpath("//div[contains(@id,'cbMain')]")
+        park = Park()
+
+        park["url"] = response.url
+        park["name"] = sel.xpath("//h2[@class='contentTitle']/text()").extract()[0]
+	park["address"] = ""
+	park["description"] = ""
+	park["gmap"] = ""
+	park["features"] = []
+
+	return park
