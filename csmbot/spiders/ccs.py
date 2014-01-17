@@ -1,4 +1,8 @@
+import urlparse
+
 from scrapy.spider import BaseSpider
+from scrapy.selector import Selector
+from scrapy.http import Request
 
 class CCSSpider(BaseSpider):
     name = "ccs"
@@ -14,4 +18,11 @@ class CCSSpider(BaseSpider):
         @returns items 0 0
         @returns requests 1 50
  	"""
+	sel = Selector(response)
+	parks = sel.xpath("//a[@title='Parks']/following-sibling::*//a[contains(@title,'Park') and not(contains(@title,'Parks'))]")
+
+	for park in [p.xpath("@href").extract()[0] for p in parks]:
+            yield Request(urlparse.urljoin("http://www.smgov.net", park), callback=parse_park)
+
+    def parse_park(self, response):
         pass
