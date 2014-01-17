@@ -25,4 +25,13 @@ class CCSSpider(BaseSpider):
             yield Request(urlparse.urljoin("http://www.smgov.net", park), callback=parse_park)
 
     def parse_park(self, response):
+        """
+        A spider contract:
+        http://doc.scrapy.org/en/latest/topics/contracts.html
+    
+        @url http://www.smgov.net/departments/ccs/content.aspx?id=31699
+        @returns items 1 1
+        @returns requests 0 0
+        @scrapes url name description address gmap features
+        """
         pass
