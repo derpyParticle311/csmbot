@@ -6,8 +6,8 @@ from scrapy.http import Request
 
 from csmbot.items import Park
 
-class CCSSpider(BaseSpider):
-    name = "ccs"
+class CCSParksSpider(BaseSpider):
+    name = "ccs-parks"
     allowed_domains = ["smgov.net"]
     start_urls = ["http://www.smgov.net/departments/ccs/content.aspx?id=32599"]
 
