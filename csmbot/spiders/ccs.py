@@ -4,7 +4,7 @@ from scrapy.spider import BaseSpider
 from scrapy.selector import Selector
 from scrapy.http import Request
 
-from csmbot.items import Park
+from csmbot.items import ParkLoader
 
 class CCSParksSpider(BaseSpider):
     name = "ccs-parks"
@@ -36,16 +36,14 @@ class CCSParksSpider(BaseSpider):
         @returns requests 0 0
         @scrapes url name description address gmap features
         """
-        sel = Selector(response)
-        content = sel.xpath("//div[contains(@id,'cbMain')]")
-        park = Park()
+        contentxp = "//div[contains(@id,'cbMain')]"
 
-        park["url"] = response.url
-        park["name"] = sel.xpath("//h2[@class='contentTitle']/text()").extract()[0]
+        pl = ParkLoader(response=response)
 
-	addr = content.xpath("p[1]")
-	park["address"] = addr.xpath("text()").re(r"(.+)\s")[0]
-        park["gmap"] = addr.xpath("a/@href").extract()[0]
+        pl.add_value("url", response.url)
+        pl.add_xpath("name", "//h2[@class='contentTitle']/text()") 
+        pl.add_xpath("address", contentxp + "/p[1]/text()")
+        pl.add_xpath("gmap", contentxp + "/a/@href")
 	
 	park["description"] = ""
 	park["features"] = []
