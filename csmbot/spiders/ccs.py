@@ -1,12 +1,10 @@
-import urlparse
-
-from scrapy.spider import BaseSpider
+from scrapy.spider import Spider
 from scrapy.selector import Selector
 from scrapy.http import Request
 
-from csmbot.items import ParkLoader
+from csmbot.itemloaders import absurl, ParkLoader
 
-class CCSParksSpider(BaseSpider):
+class CCSParksSpider(Spider):
     name = "ccs-parks"
     allowed_domains = ["smgov.net"]
     start_urls = ["http://www.smgov.net/departments/ccs/content.aspx?id=32599"]
@@ -24,28 +22,42 @@ class CCSParksSpider(BaseSpider):
 	parks = sel.xpath("//a[@title='Parks']/following-sibling::*//a[contains(@title,'Park') and not(contains(@title,'Parks'))]")
 
 	for park in [p.xpath("@href").extract()[0] for p in parks]:
-            yield Request(urlparse.urljoin("http://www.smgov.net", park), callback=self.parse_park)
+            yield Request(absurl(park), callback=self.parse_park)
 
     def parse_park(self, response):
         """
         A spider contract:
         http://doc.scrapy.org/en/latest/topics/contracts.html
     
-        @url http://www.smgov.net/departments/ccs/content.aspx?id=31699
+        @url http://www.smgov.net/departments/ccs/content.aspx?id=31692
         @returns items 1 1
         @returns requests 0 0
         @scrapes url name description address gmap features
         """
-        contentxp = "//div[contains(@id,'cbMain')]"
+        sel = Selector(response)
+        parkname = sel.xpath("//h2[@class='contentTitle']/text()").extract()
+        content = sel.xpath("//div[contains(@id,'cbMain')]")[0]
 
-        pl = ParkLoader(response=response)
+        loader = ParkLoader(selector=content)
+        loader.add_value("url", response.url)
+        loader.add_value("name", parkname) 
+        loader.add_xpath("address", "//p[1]/text()", re="^(.+)\s\($")
+        loader.add_xpath("gmap", "//p[1]/a/@href", re="^(http://maps\.google\.com.+)")
+#        loader.add_css("description", ".bodyContentTD p:nth-of-type(n+2)", re="<p>(.+)</p>")
+        loader.add_xpath("description", "//p[position()>1] or ''")
 
-        pl.add_value("url", response.url)
-        pl.add_xpath("name", "//h2[@class='contentTitle']/text()") 
-        pl.add_xpath("address", contentxp + "/p[1]/text()")
-        pl.add_xpath("gmap", contentxp + "/a/@href")
-	
-	park["description"] = ""
-	park["features"] = []
+        loader.add_xpath("features", "ul[1]/li")
 
-	return park
+        h3s = content.xpath("h3")
+        for h3 in h3s:
+            subs = h3.xpath("following-sibling::ul[1]/li")
+            if len(subs) > 0:
+                loader.add_value("features", h3.extract())
+                loader.add_value("features", subs.extract())
+            else:
+                p = h3.xpath("following-sibling::p")
+                if len(p) > 0:
+                    loader.add_value("description", h3.extract())
+                    loader.add_value("description", p.extract())
+
+	return loader.load_item()
