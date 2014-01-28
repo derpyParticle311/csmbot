@@ -2,7 +2,8 @@ from scrapy.spider import Spider
 from scrapy.selector import Selector
 from scrapy.http import Request
 
-from csmbot.itemloaders import absurl, ParkLoader
+from csmbot.itemloaders import ParkLoader
+from csmbot.util import absurl
 
 class CCSParksSpider(Spider):
     name = "ccs-parks"
