@@ -10,11 +10,10 @@ def getlinkparts(s):
     s1 = shave(s)
     match = re.match(r"(.*?)\(?<a.*?href=(\"|')(.+?)\2.*?>(.+?)</a>\)?(.*?)", s1)
     if match:
-        link = {"text": match.group(4), "url": absurl(match.group(3))}
-        ret = link
+        text = match.group(4)
         if match.group(1):
-            ret = match.group(1), ret
+            text = "{} {}".format(match.group(1), text)
         if match.group(5):
-            ret = ret, match.group(5)
-        return ret
+            text = "{} {}".format(text, match.group(5))
+        return {"text": text, "url": absurl(match.group(3))}
     return s1
