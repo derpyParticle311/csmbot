@@ -12,17 +12,17 @@ class CCSParksSpider(Spider):
 
     def parse(self, response):
         """
-	A spider contract:
-	http://doc.scrapy.org/en/latest/topics/contracts.html
-
+        A spider contract:
+        http://doc.scrapy.org/en/latest/topics/contracts.html
+        
         @url http://www.smgov.net/departments/ccs/content.aspx?id=32599
         @returns items 0 0
         @returns requests 1 50
- 	"""
-	sel = Selector(response)
-	parks = sel.xpath("//a[@title='Parks']/following-sibling::*//a[contains(@title,'Park') and not(contains(@title,'Parks'))]")
-
-	for park in [p.xpath("@href").extract()[0] for p in parks]:
+        """
+        sel = Selector(response)
+        parks = sel.xpath("//a[@title='Parks']/following-sibling::*//a[contains(@title,'Park') and not(contains(@title,'Parks'))]")
+        
+        for park in [p.xpath("@href").extract()[0] for p in parks]:
             yield Request(absurl(park), callback=self.parse_park)
 
     def parse_park(self, response):
@@ -37,15 +37,14 @@ class CCSParksSpider(Spider):
         """
         sel = Selector(response)
         parkname = sel.xpath("//h2[@class='contentTitle']/text()").extract()
-        content = sel.xpath("//div[contains(@id,'cbMain')]")[0]
+        content = sel.xpath("//td[contains(@class,'bodyContent')]/div")[0]
 
         loader = ParkLoader(selector=content)
         loader.add_value("url", response.url)
         loader.add_value("name", parkname) 
-        loader.add_xpath("address", "//p[1]/text()", re="^(.+)\s\($")
-        loader.add_xpath("gmap", "//p[1]/a/@href", re="^(http://maps\.google\.com.+)")
-#        loader.add_css("description", ".bodyContentTD p:nth-of-type(n+2)", re="<p>(.+)</p>")
-        loader.add_xpath("description", "//p[position()>1] or ''")
+        loader.add_xpath("address", "p[1]/text()", re="^(.+)\s\($")
+        loader.add_xpath("gmap", "p[1]/a/@href", re="^(http://maps\.google\.com.+)")
+        loader.add_xpath("description", "p[position()>1]")
 
         loader.add_xpath("features", "ul[1]/li")
 
