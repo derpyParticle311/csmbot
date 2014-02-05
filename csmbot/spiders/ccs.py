@@ -50,14 +50,14 @@ class CCSParksSpider(Spider):
 
         h3s = content.xpath("h3")
         for h3 in h3s:
-            subs = h3.xpath("following-sibling::ul[1]/li")
-            if len(subs) > 0:
+            li = h3.xpath("following-sibling::ul[1]/li")
+            if len(li) > 0:
                 loader.add_value("features", h3.extract())
-                loader.add_value("features", subs.extract())
+                loader.add_value("features", li.extract())
             else:
                 p = h3.xpath("following-sibling::p")
                 if len(p) > 0:
                     loader.add_value("description", h3.extract())
                     loader.add_value("description", p.extract())
-
-	return loader.load_item()
+        
+        return loader.load_item()
