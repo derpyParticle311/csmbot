@@ -6,10 +6,15 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-BOT_NAME = 'csmbot'
+BOT_NAME = "csmbot"
 
-SPIDER_MODULES = ['csmbot.spiders']
-NEWSPIDER_MODULE = 'csmbot.spiders'
+SPIDER_MODULES = ["csmbot.spiders"]
+NEWSPIDER_MODULE = "csmbot.spiders"
+
+ITEM_PIPELINES = {
+    "csmbot.pipelines.UnwrapOuterHTMLPipeline": 0,
+    "csmbot.pipelines.CleanExtendedWSPipeline": 1
+}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'csmbot (+http://www.yourdomain.com)'
+USER_AGENT = "csmbot (http://www.smgov.net)"
