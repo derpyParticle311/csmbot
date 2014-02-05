@@ -30,7 +30,7 @@ class CCSParksSpider(Spider):
         A spider contract:
         http://doc.scrapy.org/en/latest/topics/contracts.html
     
-        @url http://www.smgov.net/departments/ccs/content.aspx?id=31692
+        @url http://www.smgov.net/departments/ccs/content.aspx?id=32744
         @returns items 1 1
         @returns requests 0 0
         @scrapes url name description address gmap features
