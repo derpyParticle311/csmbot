@@ -12,8 +12,7 @@ SPIDER_MODULES = ["csmbot.spiders"]
 NEWSPIDER_MODULE = "csmbot.spiders"
 
 ITEM_PIPELINES = {
-    "csmbot.pipelines.UnwrapOuterHTMLPipeline": 0,
-    "csmbot.pipelines.CleanExtendedWSPipeline": 1
+    "csmbot.pipelines.ParkDescriptionPipeline": 0,
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent

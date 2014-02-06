@@ -1,61 +1,27 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
+import re
+
 from csmbot.util import absurl
 
-class UnwrapOuterHTMLPipeline(object):
+_emptyRegx = re.compile(r"((&nbsp;)|\s|<br/?>|\\r|\\n|\\xa0)+", re.I|re.U)
+_unwrapRegx = re.compile(r"<(\w+?)>(.*?)</\1>", re.I|re.U)
+
+class ParkDescriptionPipeline(object):
     """
-    An item pipeline that removes the outer layer of HTML
+    An item pipeline to clean up a Park item's description field
     """
-    keys = ["description", "features"]
-    regx = re.compile(r"<(\w+?)>(.+?)</\1>", re.I|re.U)
+    key = "description"
 
     def process_item(self, item, spider):
-        for key in self.keys:
-            values = []
-            if key in item:
-                for v in item[key]:
-                    m = regx.match(v)
-                    if m: values.append(m.group(2))
-            item[key] = values
-        return item
-
-class CleanExtendedWSPipeline(object):
-    """
-    An item pipeline that removes all manner of empty junk
-    """
-    keys = ["description", "features"]
-    regx = re.compile(r"((&nbsp;)|\s|<br/?>)+", re.I|re.U)
-
-    def process_item(self, item, spider):
-        for key in self.keys:
-            values = []
-            if key in item:
-                for v in item[key]:
-                    values.append(m.sub(" ", v).strip())
-            item[key] = values
-        return item
-
-class PartitionTextPipeline(object):
-    """
-    An item pipeline that extracts links (<a href>) into a tuple structure
-    """
-    catregx = re.compile(r"<h3>(.+?)</h3>", re.I|re.U)
-    lnkregx = re.compile(r"(.*?)\(?<a.*?href=(\"|')(.+?)\2.*?>(.+?)</a>\)?(.*?)", re.I|re.U)
-
-    def process_item(self, item, spider):
-        for key in self.keys:
-            values = []
-            if key in item:
-                for v in item[key]:
-                    m = regx.match(v)
-                    if m:
-                        text = m.group(4)
-                        if m.group(1):
-                            text = "{} {}".format(m.group(1), text)
-                        if m.group(5):
-                            text = "{} {}".format(text, m.group(5))
-                        values.append({"text": text, "url": absurl(m.group(3))})
-                    else:
-                        values.append(v)
-            item[key] = values
+        values = []
+        if self.key in item:
+            for v in item[self.key]:
+                m = _unwrapRegx.match(v)
+                if m:
+                    v = m.group(2)
+                v = _emptyRegx.sub(" ", v).strip()
+                if v:
+                    values.append(v)
+        item[self.key] = values
         return item
