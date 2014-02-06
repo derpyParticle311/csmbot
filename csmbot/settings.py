@@ -13,6 +13,7 @@ NEWSPIDER_MODULE = "csmbot.spiders"
 
 ITEM_PIPELINES = {
     "csmbot.pipelines.ParkDescriptionPipeline": 0,
+    "csmbot.pipelines.ParkFeaturesPipeline": 1
 }
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
