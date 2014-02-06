@@ -5,9 +5,7 @@ class Park(Item):
     name = Field()
     address = Field()
     gmap = Field()
+    latlong = Field()
     features = Field()
     description = Field()
-
-class FeatureSet(Item):
-    name = Field()
-    features = Field()
+    images = Field()
