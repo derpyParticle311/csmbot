@@ -63,3 +63,28 @@ class ParkFeaturesPipeline(object):
                 parts = "{}|{}".format(parts, m.group(5))
             parts = {"text": _emptyRegx.sub(" ", parts), "url": absurl(m.group(3))}
         return parts
+
+class ParkLatLongPipeline(object):
+    """
+    An item pipeline to split a Park item's latlong field
+    """
+    key = "latlong"
+
+    def process_item(self, item, spider):
+        latlong = {}
+        if self.key in item:
+            ll = item[self.key].split(",")
+            latlong = {"lat": ll[0], "long": ll[1]}
+	item[self.key] = latlong
+        return item
+
+class ParkImagesPipeline(object):
+    """
+    An item pipeline to make absolute a Park item's image URLs
+    """
+    key = "images"
+
+    def process_item(self, item, spider):
+        if self.key in item:
+            item[self.key] = absurl(item[self.key])
+        return item
