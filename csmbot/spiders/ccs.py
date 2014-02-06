@@ -37,13 +37,16 @@ class CCSParksSpider(Spider):
         """
         sel = Selector(response)
         parkname = sel.xpath("//h2[@class='contentTitle']/text()").extract()
+        images = sel.xpath("//li[@class='borderedImage']/a/img/@src").extract()
         content = sel.xpath("//td[contains(@class,'bodyContent')]/div")[0]
 
         loader = ParkLoader(selector=content)
         loader.add_value("url", response.url)
-        loader.add_value("name", parkname) 
+        loader.add_value("name", parkname)
+        loader.add_value("images", images)
         loader.add_xpath("address", "p[1]/text()", re="^(.+)\s\($")
         loader.add_xpath("gmap", "p[1]/a/@href", re="^(http://maps\.google\.com.+)")
+        loader.add_xpath("latlong", "p[1]/a/@href", re="&s?ll=(34\.\d+?,-118\.\d+?)&")
         loader.add_xpath("description", "p[position()>1]")
 
         loader.add_xpath("features", "ul[1]/li")
