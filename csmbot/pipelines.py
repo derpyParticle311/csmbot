@@ -4,7 +4,7 @@ import re
 
 from csmbot.util import absurl
 
-_emptyRegx = re.compile(r"((&nbsp;)|\s|<br/?>|\\r|\\n|\\xa0)+", re.I|re.U)
+_emptyRegx = re.compile("((&nbsp;)|\s|<br/?>)+", re.I|re.U)
 _unwrapRegx = re.compile(r"<(\w+?)>(.*?)</\1>", re.I|re.U)
 _catRegx = re.compile(r"<h3>(.+?)</h3>", re.I|re.U)
 _lnkRegx = re.compile(r"(.*?)\(?<a.*?href=(\"|')(.+?)\2.*?>(.+?)</a>\)?(.*?)", re.I|re.U)
@@ -58,9 +58,9 @@ class ParkFeaturesPipeline(object):
         if m:
             parts = m.group(4)
             if m.group(1):
-                parts = "{}|{}".format(m.group(1), parts)
+                parts = "{}{}".format(m.group(1), parts)
             if m.group(5):
-                parts = "{}|{}".format(parts, m.group(5))
+                parts = "{}{}".format(parts, m.group(5))
             parts = {"text": _emptyRegx.sub(" ", parts), "url": absurl(m.group(3))}
         return parts
 
@@ -75,7 +75,7 @@ class ParkLatLongPipeline(object):
         if self.key in item:
             ll = item[self.key].split(",")
             latlong = {"lat": ll[0], "long": ll[1]}
-	item[self.key] = latlong
+        item[self.key] = latlong
         return item
 
 class ParkImagesPipeline(object):
