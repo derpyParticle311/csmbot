@@ -85,6 +85,9 @@ class ParkImagesPipeline(object):
     key = "images"
 
     def process_item(self, item, spider):
+        images = []
         if self.key in item:
-            item[self.key] = absurl(item[self.key])
+            for i in item[self.key]:
+                images.append(absurl(i))
+        item[self.key] = images
         return item
