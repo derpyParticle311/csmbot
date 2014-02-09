@@ -6,6 +6,7 @@ class Park(Item):
     address = Field()
     gmap = Field()
     latlong = Field()
+    acres = Field()
     features = Field()
     description = Field()
     images = Field()
