@@ -6,8 +6,6 @@ from csmbot.util import absurl
 
 _emptyRegx = re.compile("((&nbsp;)|\s|<br/?>)+", re.I|re.U)
 _unwrapRegx = re.compile(r"<(\w+?)>(.*?)</\1>", re.I|re.U)
-_catRegx = re.compile(r"<h3>(.+?)</h3>", re.I|re.U)
-_lnkRegx = re.compile(r"(.*?)\(?<a.*?href=(\"|')(.+?)\2.*?>(.+?)</a>\)?(.*?)", re.I|re.U)
 
 class ParkDescriptionPipeline(object):
     """
@@ -27,6 +25,10 @@ class ParkDescriptionPipeline(object):
                     values.append(v)
         item[self.key] = values
         return item
+
+_catRegx = re.compile(r"<h3>(.+?)</h3>", re.I|re.U)
+_linkRegx = re.compile(r"(.*?)\(?<a.*?href=(\"|')(.+?)\2.*?>(.+?)</a>\)?(.*?)", re.I|re.U)
+_acreRegx = re.compile(r"^(\d*\.?\d*?)[\s-]+acres?", re.I|re.U)
 
 class ParkFeaturesPipeline(object):
     """
@@ -48,13 +50,17 @@ class ParkFeaturesPipeline(object):
                 m = _unwrapRegx.match(v)
                 if m:
                     v = m.group(2)
-                features[cat].append(self.partition(v))
+                a = _acreRegx.match(v)
+                if a:
+                    item["acres"] = float(a.group(1))
+                else:
+                    features[cat].append(self.partition(v))
         item[self.key] = features
         return item
             
     def partition(self, text):
         parts = text
-        m = _lnkRegx.match(text)
+        m = _linkRegx.match(text)
         if m:
             parts = m.group(4)
             if m.group(1):
@@ -74,7 +80,7 @@ class ParkLatLongPipeline(object):
         latlong = {}
         if self.key in item:
             ll = item[self.key].split(",")
-            latlong = {"lat": ll[0], "long": ll[1]}
+            latlong = {"lat": float(ll[0]), "long": float(ll[1])}
         item[self.key] = latlong
         return item
 
